@@ -6,6 +6,8 @@ import 'package:m3u_nullsafe/m3u_nullsafe.dart';
 
 import 'package:task1/pages/playlist.dart';
 import 'package:http/http.dart' as http;
+import '../db/database.dart';
+import '../model/PlaylistNameModel.dart';
 import '../model/playlistmodel.dart';
 
 class M3uProcessing extends StatefulWidget {
@@ -20,6 +22,8 @@ class M3uProcessing extends StatefulWidget {
 class _M3uProcessingState extends State<M3uProcessing>
     with SingleTickerProviderStateMixin {
   List<PlaylistsModel> tvList = [];
+  List<PlaylistsNameModel> tvPlayLists = [];
+  List<Datum> datum = [];
   List hiveTvList = [];
   bool error = false;
   bool processing = false;
@@ -67,12 +71,29 @@ class _M3uProcessingState extends State<M3uProcessing>
               logo: entry.attributes['tvg-logo'],
               playlistName: widget.playListsTitle
             );
+            Datum datum1 = Datum(
+                title:  entry.title,
+                link: entry.link,
+                logo: entry.attributes['tvg-logo'],
+                playlistName: widget.playListsTitle
+            );
+            datum.add(datum1);
+
+
+            PlaylistsNameModel playlistsNameModel = PlaylistsNameModel(
+                data:datum ,
+                playlistName: widget.playListsTitle
+            );
+
 
 
            tvList.add(playlistsModel);
+            tvPlayLists.add(playlistsNameModel);
 
           });
           print(tvList.length);
+          print(tvPlayLists[0].playlistName! + "playlistss");
+          print(tvPlayLists[0].data!.length.toString()+ "playlistss");
 
 
           // print(tvList);
@@ -249,7 +270,9 @@ class _M3uProcessingState extends State<M3uProcessing>
                     children: [
                       processing ==false
                           ? TextButton(
-                              onPressed: () {
+                              onPressed: () async{
+                                await PlaylistDatabase.savePlaylist(tvPlayLists, widget.playListsTitle);
+                               await PlaylistDatabase.getPlaylist();
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(

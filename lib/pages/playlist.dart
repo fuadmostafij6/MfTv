@@ -7,8 +7,8 @@ import 'package:hexcolor/hexcolor.dart';
 import '../model/playlistmodel.dart';
 import 'VideoPlayer.dart';
 class PlayList extends StatefulWidget {
-  final List <PlaylistsModel>tvList;
-  const PlayList({Key? key, required this.tvList}) : super(key: key);
+  final List <PlaylistsModel>?tvList;
+  const PlayList({Key? key, this.tvList}) : super(key: key);
 
   @override
   State<PlayList> createState() => _PlayListState();
@@ -43,8 +43,8 @@ class _PlayListState extends State<PlayList> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
 
-      body: widget.tvList.isNotEmpty?ListView.builder(
-          itemCount: widget.tvList.length,
+      body: widget.tvList!.isNotEmpty?ListView.builder(
+          itemCount: widget.tvList!.length,
           itemBuilder: (context, index){
 
             return Row(
@@ -58,7 +58,7 @@ class _PlayListState extends State<PlayList> {
                     child:
                     InkWell(
                       onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>VideoPlayers(link:"${widget.tvList[index].link}", title: widget.tvList[index].title!, )));
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>VideoPlayers(link:"${widget.tvList![index].link}", title: widget.tvList![index].title!, )));
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -75,7 +75,7 @@ class _PlayListState extends State<PlayList> {
 
 
                                 child:
-                                Text("${widget.tvList[index].title}",   overflow: TextOverflow.ellipsis,
+                                Text("${widget.tvList![index].title}",   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,style: const TextStyle(color: Colors.white),),
                               ),
                             ),

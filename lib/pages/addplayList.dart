@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import '../db/database.dart';
 import 'Drawers/Drawers.dart';
 import 'PlaylistType.dart';
 
@@ -35,13 +36,16 @@ class _AddPlayListState extends State<AddPlayList> {
 
   @override
   void initState() {
-    super.initState();
     _initPackageInfo();
+    PlaylistDatabase.getPlaylist();
+
+    super.initState();
+
   }
 
   @override
   Widget build(BuildContext context) {
-
+var playListData = PlaylistDatabase.prefsMap;
 
     Size size = MediaQuery.of(context).size;
     return Scaffold(
@@ -424,6 +428,28 @@ class _AddPlayListState extends State<AddPlayList> {
                                       primary: false,
                                       shrinkWrap: true,
                                       children: [
+                                        ListView.builder(
+                                          primary: false,
+                                            shrinkWrap: true,
+                                            itemCount: playListData["bd"].length,
+                                            itemBuilder: (context, index){
+                                              var data  = playListData["bd"];
+                                              print("data" + data);
+
+                                              return Text("");
+
+
+                                              // return ListView.builder(
+                                              //   primary: false,
+                                              //   shrinkWrap: true,
+                                              //     itemCount: data.length,
+                                              //     itemBuilder: (context, index){
+                                              //       return Text("");
+                                              //
+                                              // });
+
+
+                                        })
 
                                         // ListTile(
                                         //   leading: Icon(

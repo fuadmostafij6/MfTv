@@ -36,12 +36,12 @@ class _M3uProcessingState extends State<M3uProcessing>
   @override
   void initState() {
     DBProvider.db.setName(widget.playListsTitle);
-    DBProvider.db.database;
+    DBProvider.db.open();
 
     ip.loadM3U(link: widget.urlText, playListName: widget.playListsTitle).then((value){
 
       if(ip.tvList.isNotEmpty){
-        DBProvider.db.database;
+
         setState((){
           processing = false;
           error = false;
@@ -233,10 +233,10 @@ class _M3uProcessingState extends State<M3uProcessing>
                       error ==false && processing== false
                           ? TextButton(
                               onPressed: () async{
-                                DBProvider.db.database;
-                                DBProvider.db.createPlaylist(ip.playlistsModel!, widget.playListsTitle);
-                                DBProvider.db.insertAllPlayList(ip.tvList, widget.playListsTitle);
-                                DBProvider.db.listTables();
+                              DBProvider.db.createPlaylist(ip.playlistsModel!, widget.playListsTitle);
+                              DBProvider.db.insertAllPlayList(ip.tvList, widget.playListsTitle);
+                              DBProvider.db.listTables();
+
 
 
 

@@ -18,39 +18,50 @@ class DBProvider {
   static final DBProvider db = DBProvider._();
 
   DBProvider._();
-
-  Future<Database> get database async {
-    // If database exists, return database
-    if (_database != null) return _database!;
-
-    // If database don't exists, create one
-    _database = await initDB();
-
-    return _database!;
-  }
-
-  // Create the database and the Employee table
-  initDB() async {
+  Future open() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    final path = join(documentsDirectory.path, 'playlists.db');
-
-    return await openDatabase(path, version: 1, onOpen: (db) {
-
-    },
+    final path = join(documentsDirectory.path, 'playlist1.db');
+    _database = await openDatabase(path, version: 2,
         onCreate: (Database db, int version) async {
-          // await db.execute('CREATE TABLE playlists('
-          //     'id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,'
-          //     'playlistName TEXT,'
-          //     'link TEXT,'
-          //     'title TEXT,'
-          //     'logo TEXT,'
-          //
-          //     ')');
           await db.execute('''
-        CREATE TABLE $name (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,playlistName TEXT, link TEXT, title TEXT, logo TEXT )
-          ''');
+create table playlists ( 
+ id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,playlistName TEXT, link TEXT, title TEXT, logo TEXT)
+''');
         });
   }
+  // Future<Database> get database async {
+  //   // If database exists, return database
+  //   if (_database != null) return _database!;
+  //
+  //   // If database don't exists, create one
+  //   _database = await initDB();
+  //
+  //   return _database!;
+  // }
+  //
+  // // Create the database and the Employee table
+  // initDB() async {
+  //   Directory documentsDirectory = await getApplicationDocumentsDirectory();
+  //   final path = join(documentsDirectory.path, 'playlists.db');
+  //
+  //   return await openDatabase(path, version: 1, onOpen: (db) {
+  //
+  //   },
+  //       onCreate: (Database db, int version) async {
+  //         // await db.execute('CREATE TABLE playlists('
+  //         //     'id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,'
+  //         //     'playlistName TEXT,'
+  //         //     'link TEXT,'
+  //         //     'title TEXT,'
+  //         //     'logo TEXT,'
+  //         //
+  //         //     ')');
+  //         await db.execute('''
+  //       CREATE TABLE $name (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,playlistName TEXT, link TEXT, title TEXT, logo TEXT )
+  //         ''');
+  //         print("_____dbname1"+ name!);
+  //       });
+  // }
 
   // Insert employee on database
 
@@ -60,15 +71,15 @@ class DBProvider {
   }
   createPlaylist(PlaylistsModel playlistsModel, String name) async {
     //await deletePlayList(name);
-    final db = await database;
-    final res = await db.insert(name, playlistsModel.toJson());
+    final db = await _database;
+    final res = await db!.insert(name, playlistsModel.toJson());
 
     return res;
   }
 
   insertAllPlayList(List<PlaylistsModel> products,String name )async{
 
-    await _database?.delete(name);
+    await _database?.delete("playlists");
 
     for(var element in  products) {
       // ipTvProvider.tvPlayLists.add(singleProductModelFromJson(
@@ -78,7 +89,7 @@ class DBProvider {
         //var searchText=element.name?.toLowerCase();
        // var productData= json.encode(element);
         await txn.insert(
-          name,
+          "playlists",
           {
             "title": element.title,
             "link": element.link,
@@ -94,20 +105,20 @@ class DBProvider {
 
   // Delete all employees
   Future<int> deletePlayList(String name) async {
-    final db = await database;
-    final res = await db.rawDelete('DELETE FROM $name');
+    final db = await _database;
+    final res = await db!.rawDelete('DELETE FROM playlists');
 
     return res;
   }
  Future listTables() async {
-    final db = await database;
+    final db = await _database;
 
     // var tableNames = (await db
     //     .query('sqlite_master', where: 'type = ?', whereArgs: ['table']))
     //     .map((row) => row['name'] as String)
     //     .toList(growable: false);
 
-    (await db.query('sqlite_master', columns: ['type', 'name'])).forEach((row) {
+    (await db!.query('sqlite_master', columns: ['type', 'name'])).forEach((row) {
       print(row.values);
     });
   }

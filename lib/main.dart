@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:task1/pages/addplayList.dart';
+import 'package:task1/provider/iptvProvider.dart';
 
 
 void main() async{
@@ -34,7 +36,11 @@ class MyApp extends StatelessWidget {
           // is not restarted.
           primarySwatch: Colors.blue,
         ),
-        home: const Splash());
+        home: MultiProvider(
+            providers: [
+              Provider<ipTvProvider>(create: (_) => ipTvProvider()),
+            ],
+            child: const Splash()));
   }
 }
 

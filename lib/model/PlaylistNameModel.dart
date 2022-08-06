@@ -19,7 +19,7 @@ class PlaylistsNameModel {
 
   factory PlaylistsNameModel.fromJson(Map<String, dynamic> json) => PlaylistsNameModel(
     playlistName: json["playlistName"],
-    data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
+    data: json["data"]==null?[]:List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {

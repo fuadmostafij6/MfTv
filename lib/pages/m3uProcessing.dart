@@ -7,8 +7,10 @@ import 'package:m3u_nullsafe/m3u_nullsafe.dart';
 import 'package:task1/pages/playlist.dart';
 import 'package:http/http.dart' as http;
 import '../db/database.dart';
+import '../db/local_db.dart';
 import '../model/PlaylistNameModel.dart';
 import '../model/playlistmodel.dart';
+import '../provider/iptvProvider.dart';
 
 class M3uProcessing extends StatefulWidget {
   final String urlText;
@@ -26,12 +28,37 @@ class _M3uProcessingState extends State<M3uProcessing>
   List<Datum> datum = [];
   List hiveTvList = [];
   bool error = false;
-  bool processing = false;
+  bool processing = true;
   AnimationController? _controller;
   Animation<double>? _animation;
+  PlaylistsModel? playlistsModel;
+  ipTvProvider ip = ipTvProvider();
   @override
   void initState() {
-    loadM3U();
+    DBProvider.db.setName(widget.playListsTitle);
+    DBProvider.db.database;
+
+    ip.loadM3U(link: widget.urlText, playListName: widget.playListsTitle).then((value){
+
+      if(ip.tvList.isNotEmpty){
+        DBProvider.db.database;
+        setState((){
+          processing = false;
+          error = false;
+        });
+
+      }
+      else{
+        setState((){
+          processing = false;
+
+          error = true;
+        });
+      }
+    });
+    print(ip.tvList.toString() + "________________eqeqe");
+
+    //loadM3U();
     _controller = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
@@ -52,74 +79,7 @@ class _M3uProcessingState extends State<M3uProcessing>
 
   static const tvPlayList = ['Tv Playlist'];
   String selectedTvPlayList = "Tv Playlist";
-  Future<void> loadM3U() async {
-    try {
-      setState((){
-        processing =true;
-      });
-      final response = await http.get(Uri.parse(widget.urlText));
-      final m3u = await M3uParser.parse(response.body);
-      print(response.statusCode.toString()+"dsfas");
 
-      if (response.statusCode == 200) {
-
-        for (final entry in m3u) {
-          setState(() {
-            PlaylistsModel playlistsModel = PlaylistsModel(
-             title:  entry.title,
-              link: entry.link,
-              logo: entry.attributes['tvg-logo'],
-              playlistName: widget.playListsTitle
-            );
-            Datum datum1 = Datum(
-                title:  entry.title,
-                link: entry.link,
-                logo: entry.attributes['tvg-logo'],
-                playlistName: widget.playListsTitle
-            );
-            datum.add(datum1);
-
-
-            PlaylistsNameModel playlistsNameModel = PlaylistsNameModel(
-                data:datum ,
-                playlistName: widget.playListsTitle
-            );
-
-
-
-           tvList.add(playlistsModel);
-            tvPlayLists.add(playlistsNameModel);
-
-          });
-          print(tvList.length);
-          print(tvPlayLists[0].playlistName! + "playlistss");
-          print(tvPlayLists[0].data!.length.toString()+ "playlistss");
-
-
-          // print(tvList);
-          // print(
-          //     'Title: ${entry.title} Link: ${entry.link} Logo: ${entry.attributes['tvg-logo']}');
-        }
-        setState((){
-          processing =false;
-        });
-
-        setState(() {
-          error = false;
-        });
-      }
-      else{
-        setState(() {
-          error = true;
-        });
-      }
-    } catch (e) {
-      print(e);
-      setState(() {
-        error = true;
-      });
-    }
-  }
 
 
 
@@ -132,33 +92,38 @@ class _M3uProcessingState extends State<M3uProcessing>
     return Scaffold(
       body: Row(
         children: [
-          processing == false
-              ? Container(
-                  height: size.height,
-                  width: size.width * 0.5,
-                  color: HexColor("#394a52"),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.download,
-                        size: 50,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(
-                        width: 15.0,
-                      ),
-                      TextButton(
-                          onPressed: () {},
-                          child: const Text(
-                            "Processing",
-                            style: const TextStyle(
-                                fontSize: 24, color: Colors.white),
-                          ))
-                    ],
-                  ),
-                )
+         processing
+              ?Container(
+           height: size.height,
+           width: size.width * 0.5,
+           color: HexColor("#394a52"),
+           child: FadeTransition(
+             opacity: _animation!,
+             child: Row(
+               mainAxisAlignment: MainAxisAlignment.center,
+               crossAxisAlignment: CrossAxisAlignment.center,
+               children: [
+                 const Icon(
+                   Icons.download,
+                   size: 50,
+                   color: Colors.white,
+                 ),
+                 const SizedBox(
+                   width: 15.0,
+                 ),
+                 TextButton(
+                     onPressed: () {},
+                     child: const Text(
+                       "Processing",
+                       style: const TextStyle(
+                           fontSize: 24, color: Colors.white),
+                     ))
+               ],
+             ),
+           ),
+         )
+
+
               : error == true
                   ? Container(
                       height: size.height,
@@ -186,35 +151,32 @@ class _M3uProcessingState extends State<M3uProcessing>
                         ],
                       ),
                     )
-                  : Container(
-                      height: size.height,
-                      width: size.width * 0.5,
-                      color: HexColor("#394a52"),
-                      child: FadeTransition(
-                        opacity: _animation!,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.download,
-                              size: 50,
-                              color: Colors.white,
-                            ),
-                            const SizedBox(
-                              width: 15.0,
-                            ),
-                            TextButton(
-                                onPressed: () {},
-                                child: const Text(
-                                  "Processing",
-                                  style: const TextStyle(
-                                      fontSize: 24, color: Colors.white),
-                                ))
-                          ],
-                        ),
-                      ),
-                    ),
+                  :   Container(
+           height: size.height,
+           width: size.width * 0.5,
+           color: HexColor("#394a52"),
+           child: Row(
+             mainAxisAlignment: MainAxisAlignment.center,
+             crossAxisAlignment: CrossAxisAlignment.center,
+             children: [
+               const Icon(
+                 Icons.download,
+                 size: 50,
+                 color: Colors.white,
+               ),
+               const SizedBox(
+                 width: 15.0,
+               ),
+               TextButton(
+                   onPressed: () {},
+                   child: const Text(
+                     "Processing",
+                     style: const TextStyle(
+                         fontSize: 24, color: Colors.white),
+                   ))
+             ],
+           ),
+         ),
           Container(
             height: size.height,
             width: size.width * 0.3,
@@ -268,17 +230,25 @@ class _M3uProcessingState extends State<M3uProcessing>
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      processing ==false
+                      error ==false && processing== false
                           ? TextButton(
                               onPressed: () async{
-                                await PlaylistDatabase.savePlaylist(tvPlayLists, widget.playListsTitle);
-                               await PlaylistDatabase.getPlaylist();
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => PlayList(
-                                              tvList: tvList,
-                                            )));
+                                DBProvider.db.database;
+                                DBProvider.db.createPlaylist(ip.playlistsModel!, widget.playListsTitle);
+                                DBProvider.db.insertAllPlayList(ip.tvList, widget.playListsTitle);
+                                DBProvider.db.listTables();
+
+
+
+                              // print("____Processs" + tvList.toString());
+
+
+                                // Navigator.push(
+                                //     context,
+                                //     MaterialPageRoute(
+                                //         builder: (context) => PlayList(
+                                //               tvList: ip.tvList,
+                                //             )));
                               },
                               child: const Text(
                                 "Next",
@@ -292,7 +262,7 @@ class _M3uProcessingState extends State<M3uProcessing>
                                 "Next",
                                 style: TextStyle(color: HexColor("#4d5558")),
                               )),
-                      tvList.isNotEmpty
+                      ip.tvList.isNotEmpty
                           ? const Icon(
                               Icons.play_arrow,
                               color: Colors.white,

@@ -7,6 +7,7 @@ import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 import 'package:m3u_nullsafe/m3u_nullsafe.dart';
 
+import '../db/local_db.dart';
 import '../model/PlaylistNameModel.dart';
 import '../model/playlistmodel.dart';
 
@@ -22,9 +23,11 @@ class ipTvProvider with ChangeNotifier{
   List<PlaylistsModel> tvList = [];
   List<PlaylistsModel>  get _tvList => tvList;
   List<PlaylistsNameModel> tvPlayLists = [];
-  List<Datum> datum = [];
+  List<PlaylistsNameModel> get _tvPlayLists => tvPlayLists;
   PlaylistsModel? playlistsModel;
+  PlaylistsNameModel? playlistsNameModel;
   PlaylistsModel? get _playlistsModel => playlistsModel;
+  PlaylistsNameModel? get _playlistsNameModel => playlistsNameModel;
 
   Future<void> loadM3U({required String link, required String playListName}) async {
     try {
@@ -35,7 +38,7 @@ class ipTvProvider with ChangeNotifier{
 
 
       if (response.statusCode == 200) {
-        _processing =true;
+        //_processing =true;
         notifyListeners();
 
         for (final entry in m3u) {
@@ -45,39 +48,28 @@ class ipTvProvider with ChangeNotifier{
               logo: entry.attributes['tvg-logo'],
               playlistName: playListName
           );
-          // PlaylistsModel playlistsModel = PlaylistsModel(
-          //     title:  entry.title,
-          //     link: entry.link,
-          //     logo: entry.attributes['tvg-logo'],
-          //     playlistName: playListName
-          // );
-          Datum datum1 = Datum(
-              title:  entry.title,
-              link: entry.link,
-              logo: entry.attributes['tvg-logo'],
-              playlistName: playListName
-          );
-          datum.add(datum1);
 
 
-          PlaylistsNameModel playlistsNameModel = PlaylistsNameModel(
-              data:datum ,
-              playlistName: playListName
-          );
+
+
 
 
 
           tvList.add(playlistsModel!);
-          tvPlayLists.add(playlistsNameModel);
+
           print(tvList.length);
-          print(tvPlayLists[0].playlistName! + "playlistss");
-          print(tvPlayLists[0].data!.length.toString()+ "playlistss");
+
 
           notifyListeners();
           // print(tvList);
           // print(
           //     'Title: ${entry.title} Link: ${entry.link} Logo: ${entry.attributes['tvg-logo']}');
         }
+        playlistsNameModel = PlaylistsNameModel(
+          playlistName: playListName,
+        );
+
+        tvPlayLists.add(playlistsNameModel!);
         _processing =false;
         _error = false;
         notifyListeners();
@@ -94,6 +86,15 @@ class ipTvProvider with ChangeNotifier{
       notifyListeners();
     }
   }
+ SetDB_DATA( List<PlaylistsModel> tvList1){
+    tvList = tvList1;
+
+    print("________"+tvList[0].title.toString());
+    notifyListeners();
+
+
+ }
+
 
   void initialValues(){
     _error = false;

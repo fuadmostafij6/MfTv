@@ -27,7 +27,7 @@ body: Row(
         children:  [
           const Icon(Icons.list_alt, size: 50,color: Colors.white,),
           const SizedBox(width: 15.0,),
-          TextButton(onPressed: (){}, child:const Text("PlayList Type", style: const TextStyle(fontSize: 24, color: Colors.white),) )
+          const Text("PlayList Type", style: const TextStyle(fontSize: 24, color: Colors.white),)
         ],
       ),
     ),

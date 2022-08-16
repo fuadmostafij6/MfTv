@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:task1/db/local_db.dart';
+import 'package:task1/model/PlaylistNameModel.dart';
+import 'package:task1/pages/playlist.dart';
+import 'package:task1/pages/playlistData.dart';
+import 'package:task1/provider/iptvProvider.dart';
 
 import '../db/database.dart';
+import '../widget/customControl.dart';
 import 'Drawers/Drawers.dart';
 import 'PlaylistType.dart';
 
@@ -15,7 +22,11 @@ class AddPlayList extends StatefulWidget {
 
 class _AddPlayListState extends State<AddPlayList> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+  new GlobalKey<RefreshIndicatorState>();
+  ipTvProvider ip = ipTvProvider();
+  Future<List<PlaylistsNameModel>>?getTableNames;
+  List<PlaylistsNameModel> tableName = [];
   int drawerNo = 0;
   String version = "";
   PackageInfo _packageInfo = PackageInfo(
@@ -31,23 +42,55 @@ class _AddPlayListState extends State<AddPlayList> {
       version = info.version;
     });
   }
+FocusNode? focusNode1;
+FocusNode? focusNode2;
 
+_setFocus(BuildContext context){
+if (focusNode1 == null){
+  focusNode1 = FocusNode();
+  focusNode2 = FocusNode();
+  FocusScope.of(context).requestFocus(focusNode1);
+}
 
-
+}
+_changeFocus(BuildContext context, FocusNode node){
+  FocusScope.of(context).requestFocus(node);
+}
   @override
   void initState() {
     _initPackageInfo();
-    PlaylistDatabase.getPlaylist();
+
+    setState((){
+
+      DBProvider.db.streamTable();
+      tableName = DBProvider.db.newTableNameList;
+    });
+
 
     super.initState();
 
   }
+  @override
+  void dispose(){
+  focusNode1!.dispose();
+  focusNode2!.dispose();
+  super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-var playListData = PlaylistDatabase.prefsMap;
 
+
+setState((){
+
+ DBProvider.db.streamTable();
+  tableName = DBProvider.db.newTableNameList;
+});
     Size size = MediaQuery.of(context).size;
+
+    // if(focusNode1==null){
+    //   _setFocus(context);
+    // }
     return Scaffold(
       drawerEnableOpenDragGesture: false,
       endDrawerEnableOpenDragGesture: false,
@@ -396,135 +439,86 @@ var playListData = PlaylistDatabase.prefsMap;
                             });
                             return false;
                           },
-                          child: Drawer(
-                            backgroundColor: HexColor("#2b383e"),
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  Container(
-                                    color: HexColor("#394a53"),
-                                    height: MediaQuery.of(context).size.height *
-                                        0.15,
-                                    width: MediaQuery.of(context).size.width *
-                                        0.35,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 10, top: 10),
-                                      child: Text(
-                                        "PlayList",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 24,
-                                            color: Colors.white),
+                          child: RefreshIndicator(
+                            key: _refreshIndicatorKey,
+                            onRefresh: ()async{
+                              await DBProvider.db.getAllTableNames();
+                              tableName = DBProvider.db.newTableNameList;
+
+                            },
+                            child: Drawer(
+                              backgroundColor: HexColor("#2b383e"),
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      color: HexColor("#394a53"),
+                                      height: MediaQuery.of(context).size.height *
+                                          0.15,
+                                      width: MediaQuery.of(context).size.width *
+                                          0.35,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 10, top: 10),
+                                        child: Text(
+                                          "PlayList",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 24,
+                                              color: Colors.white),
+                                        ),
                                       ),
                                     ),
+                                  tableName.length >0?
+                                  ListView.builder(
+                                    itemCount: tableName.length >0?tableName.length:0,
+                                    primary: false,
+                                    shrinkWrap: true,
+                                    itemBuilder: (BuildContext context, int index) {
+                                      tableName = DBProvider.db.newTableNameList;
+                                     var data = tableName[index];
+
+
+                                      return tableName.length >0?
+                                      ListTile(
+                                        onTap: (){
+                                          DBProvider.db.getDataFromDb(context, data.playlistName!);
+                                        },
+                                        trailing: IconButton(
+                                          icon: Icon(Icons.remove_circle_outlined), onPressed: () {
+                                            DBProvider.db.deletePlayList(data.playlistName!).then((value){
+
+                                              // _refreshIndicatorKey.currentState!.show();
+                                              if(DBProvider.db.newTableNameList.isEmpty){
+                                                tableName.clear();
+                                              }
+                                              else{
+                                                tableName.remove(data.playlistName);
+                                              }
+                                            });
+                                        },
+                                        ),
+                                        title: Text(data.playlistName!.toUpperCase(), style: TextStyle(color: Colors.white),),
+                                      )
+                                          :  SizedBox(
+                                        child: Text("There is no playlist"),
+                                      );
+                                  },
+
+                                  ):
+                                  SizedBox(
+                                    child: Text("There is no playlist"),
                                   ),
-                                  Container(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.85,
-                                    width: MediaQuery.of(context).size.width *
-                                        0.35,
-                                    child: ListView(
-                                      primary: false,
-                                      shrinkWrap: true,
-                                      children: [
-                                        ListView.builder(
-                                          primary: false,
-                                            shrinkWrap: true,
-                                            itemCount: playListData["bd"].length,
-                                            itemBuilder: (context, index){
-                                              var data  = playListData["bd"];
-                                              print("data" + data);
 
-                                              return Text("");
+                                    TextButton(onPressed: (){
+                                      setState(() {
+                                        drawerNo = 0;
+                                      });
+                                      Navigator.push(context, MaterialPageRoute(builder: (context)=>PlayListType() ));
+                                    }, child: Text("Add playlist"))
 
-
-                                              // return ListView.builder(
-                                              //   primary: false,
-                                              //   shrinkWrap: true,
-                                              //     itemCount: data.length,
-                                              //     itemBuilder: (context, index){
-                                              //       return Text("");
-                                              //
-                                              // });
-
-
-                                        })
-
-                                        // ListTile(
-                                        //   leading: Icon(
-                                        //     Icons.lock,
-                                        //     color: Colors.grey,
-                                        //   ),
-                                        //   // trailing: Transform.scale(
-                                        //   //     scale: 1,
-                                        //   //     child: Switch(
-                                        //   //
-                                        //   //       value: false,
-                                        //   //       activeColor: Colors.blue,
-                                        //   //       activeTrackColor: Colors.yellow,
-                                        //   //       inactiveThumbColor: Colors.grey,
-                                        //   //       inactiveTrackColor: Colors.grey.shade400, onChanged: (bool value) {  },
-                                        //   //     )
-                                        //   // ),
-                                        //
-                                        //   title: Text(
-                                        //     "Playlists sorting",
-                                        //     style: TextStyle(
-                                        //       color: Colors.grey,
-                                        //       fontSize: 15,
-                                        //     ),
-                                        //   ),
-                                        //   subtitle: Text(
-                                        //     "By Name",
-                                        //     style: TextStyle(
-                                        //       color: Colors.grey,
-                                        //       fontSize: 10,
-                                        //     ),
-                                        //   ),
-                                        // ),
-                                        // ListTile(
-                                        //   // leading: Icon(Icons.lock, color: Colors.grey,),
-                                        //
-                                        //   title: Text(
-                                        //     "Add Playlists",
-                                        //     style: TextStyle(
-                                        //       color: Colors.white,
-                                        //       fontSize: 15,
-                                        //     ),
-                                        //   ),
-                                        //   // subtitle: Text("May not work all devices", style: TextStyle(color: Colors.grey, fontSize: 10, ),),
-                                        // ),
-                                        // ListTile(
-                                        //   leading: Icon(
-                                        //     Icons.lock,
-                                        //     color: Colors.grey,
-                                        //   ),
-                                        //   // trailing: Transform.scale(
-                                        //   //     scale: 1,
-                                        //   //     child: Switch(
-                                        //   //
-                                        //   //       value: false,
-                                        //   //       activeColor: Colors.blue,
-                                        //   //       activeTrackColor: Colors.yellow,
-                                        //   //       inactiveThumbColor: Colors.grey,
-                                        //   //       inactiveTrackColor: Colors.grey.shade400, onChanged: (bool value) {  },
-                                        //   //     )
-                                        //   // ),
-                                        //
-                                        //   title: Text(
-                                        //     "Update all playlists",
-                                        //     style: TextStyle(
-                                        //       color: Colors.grey,
-                                        //       fontSize: 15,
-                                        //     ),
-                                        //   ),
-                                        //   //  subtitle: Text("By Name", style: TextStyle(color: Colors.grey, fontSize: 10, ),),
-                                        // ),
-                                      ],
-                                    ),
-                                  )
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -665,39 +659,64 @@ var playListData = PlaylistDatabase.prefsMap;
           const SizedBox(
             height: 15.0,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const PlayListType()));
-                },
-                style:
-                    TextButton.styleFrom(backgroundColor: HexColor("#ffffff")),
-                child: Text(
-                  "Add PlayList",
-                  style: TextStyle(color: HexColor("#0c0c0c")),
+          Shortcuts(
+            shortcuts: <LogicalKeySet, Intent>{
+              LogicalKeySet(LogicalKeyboardKey.arrowLeft):LeftButtonIntent(),
+              LogicalKeySet(LogicalKeyboardKey.arrowRight):RightButtonIntent(),
+              LogicalKeySet(LogicalKeyboardKey.arrowUp):UpButtonIntent(),
+              LogicalKeySet(LogicalKeyboardKey.arrowDown):DownButtonIntent(),
+              LogicalKeySet(LogicalKeyboardKey.select): EnterButtonIntent(),
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Actions(
+
+                  actions:<Type,Action<Intent>> {
+
+
+                  },
+                  child: Focus(
+                    focusNode: focusNode1,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const PlayListType()));
+                      },
+                      style:
+                          TextButton.styleFrom(
+
+
+                              backgroundColor: focusNode1!.hasFocus? HexColor("#ffffff"):HexColor("#495154") ),
+                      child: Text(
+                        "Add PlayList",
+                        style: TextStyle(color: focusNode1!.hasFocus?HexColor("#0c0c0c"):HexColor("#ffffff")),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(
-                width: 15.0,
-              ),
-              TextButton(
-                onPressed: () {
-                  _scaffoldKey.currentState!.openEndDrawer();
-                },
-                style:
-                    TextButton.styleFrom(backgroundColor: HexColor("#495154")),
-                child: Text(
-                  "Settings",
-                  style: TextStyle(color: HexColor("#ffffff")),
+                const SizedBox(
+                  width: 15.0,
                 ),
-              )
-            ],
+                Focus(
+                  focusNode: focusNode2,
+                  child: TextButton(
+                    onPressed: () {
+                      _scaffoldKey.currentState!.openEndDrawer();
+                    },
+                    style:
+                        TextButton.styleFrom(backgroundColor: focusNode2!.hasFocus? HexColor("#ffffff"):HexColor("#495154") ),
+                    child: Text(
+                      "Settings",
+                      style: TextStyle(color:focusNode2!.hasFocus?HexColor("#0c0c0c"):HexColor("#ffffff")),
+                    ),
+                  ),
+                )
+              ],
+            ),
           )
         ],
       ),

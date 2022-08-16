@@ -39,7 +39,7 @@ class _PlayListState extends State<PlayList> {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    print(widget.tvList);
+
     Size size = MediaQuery.of(context).size;
     return Scaffold(
 

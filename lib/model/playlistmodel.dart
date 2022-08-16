@@ -14,8 +14,9 @@ class PlaylistsModel {
     this.link,
     this.logo,
     this.playlistName,
+    this.id,
   });
-
+  int? id;
   String? title;
   String? link;
   String? logo;
@@ -26,6 +27,7 @@ class PlaylistsModel {
     link: json["link"],
     logo: json["logo"],
     playlistName: json["playlistName"],
+    id: json["id"]
   );
 
   Map<String, dynamic> toJson() => {
@@ -33,5 +35,6 @@ class PlaylistsModel {
     "link": link,
     "logo": logo,
     "playlistName": playlistName,
+    "id": id
   };
 }

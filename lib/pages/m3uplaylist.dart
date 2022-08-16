@@ -17,8 +17,6 @@ class _M3UPlayListState extends State<M3UPlayList> {
   String playText = "";
   bool clickUrl = false;
 
-
-
   @override
   Widget build(BuildContext context) {
     print(urlController.text);
@@ -42,12 +40,10 @@ class _M3UPlayListState extends State<M3UPlayList> {
                 const SizedBox(
                   width: 15.0,
                 ),
-                TextButton(
-                    onPressed: () {},
-                    child: const Text(
-                      "M3U PlayList",
-                      style: TextStyle(fontSize: 24, color: Colors.white),
-                    ))
+                const Text(
+                  "M3U PlayList",
+                  style: TextStyle(fontSize: 24, color: Colors.white),
+                )
               ],
             ),
           ),
@@ -79,61 +75,64 @@ class _M3UPlayListState extends State<M3UPlayList> {
                         ),
                         clickUrl == true
                             ? Column(
-                          children: [
-                            SizedBox(
-                                height: 3 * 24,
-                                width: size.width * 0.2,
-                                child: TextFormField(
-                                  onChanged: (val) {
-                                    setState(() => {urlText = val});
-                                  },
-                                  maxLines: 3,
-                                  minLines: 1,
-                                  style: const TextStyle(color: Colors.white),
-                                  controller: urlController,
-                                  decoration: const InputDecoration(
-                                    hintText: "https://....m3u",
-                                    hintStyle: TextStyle(
-                                        color: Colors.grey
-                                    ),
-                                    filled: true,
-                                    enabledBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.white, width: 1.0),
-                                    ),
-                                  ),
-                                )),
-                            SizedBox(
-                                height: 3 * 24,
-                                width: size.width * 0.2,
-                                child: TextFormField(
-                                  onChanged: (val) {
-setState((){
-  playText =val;
-});
-                                  },
-                                  maxLines: 3,
-                                  minLines: 1,
-                                  style: const TextStyle(color: Colors.white),
-                                  controller: titleController,
-                                  decoration: const InputDecoration(
-                                    hintText: "Play List Name",
-                                    hintStyle: TextStyle(
-                                      color: Colors.grey
-                                    ),
-                                    filled: true,
-                                    enabledBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.white, width: 1.0),
-                                    ),
-                                  ),
-                                ))
-                          ],
-                        )
+                                children: [
+                                  SizedBox(
+                                      height: 3 * 24,
+                                      width: size.width * 0.2,
+                                      child: TextFormField(
+                                        keyboardType: TextInputType.text,
+                                        onChanged: (val) {
+                                          setState(() => {urlText = val});
+                                        },
+                                        maxLines: 3,
+                                        minLines: 1,
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                        controller: urlController,
+                                        decoration: const InputDecoration(
+                                          hintText: "https://....m3u",
+                                          hintStyle:
+                                              TextStyle(color: Colors.grey),
+                                          filled: true,
+                                          enabledBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.white,
+                                                width: 1.0),
+                                          ),
+                                        ),
+                                      )),
+                                  SizedBox(
+                                      height: 3 * 24,
+                                      width: size.width * 0.2,
+                                      child: TextFormField(
+                                        keyboardType: TextInputType.text,
+                                        onChanged: (val) {
+                                          setState(() {
+                                            playText = val;
+                                          });
+                                        },
+                                        maxLines: 3,
+                                        minLines: 1,
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                        controller: titleController,
+                                        decoration: const InputDecoration(
+                                          hintText: "Play List Name",
+                                          hintStyle:
+                                              TextStyle(color: Colors.grey),
+                                          filled: true,
+                                          enabledBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.white,
+                                                width: 1.0),
+                                          ),
+                                        ),
+                                      ))
+                                ],
+                              )
                             : const SizedBox(),
                       ],
                     ),
-
                   ],
                 ),
               ),
@@ -150,62 +149,67 @@ setState((){
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Center(
-                        child:  urlText != "" && playText !=""
-                            ?  Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                      TextButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                               M3uProcessing(urlText: urlText, playListsTitle: playText,)));
-                                },
-                                child: const Text(
-                                  "Next",
-                                  style: TextStyle(color: Colors.white),
-                                )),
-                            // : TextButton(
-                            //     onPressed: () {},
-                            //     child: Text(
-                            //       "Next",
-                            //       style: TextStyle(color: HexColor("#4d5558")),
-                            //     )),
-                        // Icon(
-                        //   Icons.play_arrow,
-                        //   color: Colors.white,
-                        // )
-                      ],
-                    ): Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              TextButton(
-                  onPressed: () {
-                    // Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //         builder: (context) =>
-                    //             M3uProcessing(urlText: urlText,)));
-                  },
-                  child:  Text(
-                    "Next",
-                    style: TextStyle(color: HexColor("#82878a")),
-                  )),
-              // : TextButton(
-              //     onPressed: () {},
-              //     child: Text(
-              //       "Next",
-              //       style: TextStyle(color: HexColor("#4d5558")),
-              //     )),
-              // Icon(
-              //   Icons.play_arrow,
-              //   color: HexColor("#82878a"),
-              // )
-            ],
-          )),
+                        child: urlText != "" && playText != ""
+                            ? Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    M3uProcessing(
+                                                      urlText: urlText,
+                                                      playListsTitle: playText,
+                                                    )));
+                                      },
+                                      child: const Text(
+                                        "Next",
+                                        style: TextStyle(color: Colors.white),
+                                      )),
+                                  // : TextButton(
+                                  //     onPressed: () {},
+                                  //     child: Text(
+                                  //       "Next",
+                                  //       style: TextStyle(color: HexColor("#4d5558")),
+                                  //     )),
+                                  // Icon(
+                                  //   Icons.play_arrow,
+                                  //   color: Colors.white,
+                                  // )
+                                ],
+                              )
+                            : Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  TextButton(
+                                      onPressed: () {
+                                        // Navigator.push(
+                                        //     context,
+                                        //     MaterialPageRoute(
+                                        //         builder: (context) =>
+                                        //             M3uProcessing(urlText: urlText,)));
+                                      },
+                                      child: Text(
+                                        "Next",
+                                        style: TextStyle(
+                                            color: HexColor("#82878a")),
+                                      )),
+                                  // : TextButton(
+                                  //     onPressed: () {},
+                                  //     child: Text(
+                                  //       "Next",
+                                  //       style: TextStyle(color: HexColor("#4d5558")),
+                                  //     )),
+                                  // Icon(
+                                  //   Icons.play_arrow,
+                                  //   color: HexColor("#82878a"),
+                                  // )
+                                ],
+                              )),
                     Center(
                         child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,

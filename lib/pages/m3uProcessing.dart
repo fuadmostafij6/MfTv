@@ -25,7 +25,6 @@ class _M3uProcessingState extends State<M3uProcessing>
     with SingleTickerProviderStateMixin {
   List<PlaylistsModel> tvList = [];
   List<PlaylistsNameModel> tvPlayLists = [];
-  List<Datum> datum = [];
   List hiveTvList = [];
   bool error = false;
   bool processing = true;
@@ -35,12 +34,11 @@ class _M3uProcessingState extends State<M3uProcessing>
   ipTvProvider ip = ipTvProvider();
   @override
   void initState() {
-    DBProvider.db.setName(widget.playListsTitle);
-    DBProvider.db.open();
+    //DBProvider.db.setName(widget.playListsTitle);
 
     ip.loadM3U(link: widget.urlText, playListName: widget.playListsTitle).then((value){
 
-      if(ip.tvList.isNotEmpty){
+      if(ip.tvList.isNotEmpty && ip.tvPlayLists.isNotEmpty){
 
         setState((){
           processing = false;
@@ -56,7 +54,6 @@ class _M3uProcessingState extends State<M3uProcessing>
         });
       }
     });
-    print(ip.tvList.toString() + "________________eqeqe");
 
     //loadM3U();
     _controller = AnimationController(
@@ -233,9 +230,19 @@ class _M3uProcessingState extends State<M3uProcessing>
                       error ==false && processing== false
                           ? TextButton(
                               onPressed: () async{
-                              DBProvider.db.createPlaylist(ip.playlistsModel!, widget.playListsTitle);
+                            //  DBProvider.db.createPlaylist(ip.playlistsModel!, widget.playListsTitle);
                               DBProvider.db.insertAllPlayList(ip.tvList, widget.playListsTitle);
-                              DBProvider.db.listTables();
+                              DBProvider.db.insertPlayListName(ip.tvPlayLists, widget.playListsTitle);
+
+
+
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => PlayList(
+                                        tvList: ip.tvList,
+                                      )));
+
 
 
 
@@ -243,12 +250,6 @@ class _M3uProcessingState extends State<M3uProcessing>
                               // print("____Processs" + tvList.toString());
 
 
-                                // Navigator.push(
-                                //     context,
-                                //     MaterialPageRoute(
-                                //         builder: (context) => PlayList(
-                                //               tvList: ip.tvList,
-                                //             )));
                               },
                               child: const Text(
                                 "Next",

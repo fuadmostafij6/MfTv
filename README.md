@@ -1,18 +1,12 @@
-# task1
+# MftvPlayer
+# Here I Use Local DB Sqglite and For UI I Use Flutter
 
-A new Flutter project.
+You just Provide M3u Playlist, my app can perse all play list and show live tv
 
-## Getting Started
+#Here Some M3u Link:
+1. https://iptv-org.github.io/iptv/categories/sports.m3u
 
-This project is a starting point for a Flutter application.
+2. https://iptv-org.github.io/iptv/categories/music.m3u
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# mftv
+3. https://iptv-org.github.io/iptv/index.nsfw.m3u
 # mftvapp
